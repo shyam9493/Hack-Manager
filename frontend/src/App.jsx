@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
+import Dashboard from '../Components/Dashboard';
 
 
 function App() {
@@ -12,7 +13,7 @@ function App() {
         <SignInButton />
       </SignedOut>
       <SignedIn>
-        <UserButton />
+        <Dashboard />
       </SignedIn>
     </header>
   )
