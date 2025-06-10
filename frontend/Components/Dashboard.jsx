@@ -1,5 +1,7 @@
 import { useAuth, UserButton } from '@clerk/clerk-react'
 import React, { useState } from 'react'
+import axios from 'axios';
+
 
 const Dashboard = () => {
     const [token,setToken]=useState("");
@@ -8,7 +10,21 @@ const Dashboard = () => {
      const t =  await getToken();
      setToken(t);
      console.log("something..");
-    }
+     const response=await axios.get('http://localhost:3000/protected/test',
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+      
+    );
+    console.log(response.data);
+    // setToken(response);
+
+}
+    
+     
+    
     
   return (
     <>

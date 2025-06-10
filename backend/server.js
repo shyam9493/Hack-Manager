@@ -1,35 +1,47 @@
 const express = require("express");
-const mongoose=require("mongoose");
-const dotenv=require("dotenv");
-const { clerkMiddleware,clerkClient, requireAuth, getAuth,createClerkClient  } =require("@clerk/express");
-dotenv.config()
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const { clerkMiddleware, clerkClient, requireAuth, getAuth } = require("@clerk/express");
 
+dotenv.config();
 
-const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY })
+const app = express();
 
-const app=express();
-
-
-app.use(clerkMiddleware())
+app.use(cors());
 app.use(express.json());
 
+app.use(clerkMiddleware());
 
-app.get('/protected', requireAuth(), async (req, res) => {
 
-  const { userId } = getAuth(req)
+app.get('/protected/test', requireAuth(), async (req, res) => {
+  try {
+    const { userId } = getAuth(req);
 
-  const user = await clerkClient.users.getUser(userId)
+    const {id} = await clerkClient.users.getUser(userId);
+    // console.log(user.id);
 
-  return res.json({ user })
-})
+    if (!id) {
+      return res.status(404).json({ error: 'User not found' });
+    }
 
-app.get('/',async (req,res)=>{
-    const userList = (await clerk.users.getUserList()).totalCount;
-
-res.send(userList);
+    return res.json({ id });
+  } catch (error) {
+    console.error('Error in /protected/test:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
-app.listen(3000,()=>{
-    console.log("running.. \nLink: http://localhost:3000");
-}
-)
+app.get('/', async (req, res) => {
+  try {
+    const userList = await clerkClient.users.getUserList();
+    res.send(`Total users: ${userList.totalCount}`);
+  } catch (error) {
+    console.error('Error fetching user list:', error);
+    res.status(500).send('Failed to fetch user list');
+  }
+});
+
+app.listen(3000, () => {
+  console.log("running..\nLink: http://localhost:3000");
+});
